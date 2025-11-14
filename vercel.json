@@ -1,0 +1,7 @@
+{
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_WS_URL": "@NEXT_PUBLIC_WS_URL"
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "rooms": [
+    {
+      "code": "9LIO85",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 5,
+        "actionCount": 1,
+        "leftBans": [
+          1,
+          2,
+          8,
+          10
+        ],
+        "rightBans": [
+          3,
+          4,
+          9
+        ],
+        "leftPicks": [
+          5
+        ],
+        "rightPicks": [
+          6,
+          7
+        ]
+      },
+      "createdAt": 1763145645254
+    },
+    {
+      "code": "I5VFAI",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 5,
+        "actionCount": 0,
+        "leftBans": [
+          3,
+          4,
+          10,
+          9
+        ],
+        "rightBans": [
+          6,
+          8
+        ],
+        "leftPicks": [
+          2
+        ],
+        "rightPicks": [
+          5,
+          7
+        ]
+      },
+      "createdAt": 1763145711107
+    },
+    {
+      "code": "9CM0FL",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": []
+      },
+      "createdAt": 1763146013518
+    },
+    {
+      "code": "FPBLXA",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 6,
+        "actionCount": 0,
+        "leftBans": [
+          1,
+          2,
+          10,
+          12
+        ],
+        "rightBans": [
+          3,
+          4
+        ],
+        "leftPicks": [
+          5,
+          8,
+          9
+        ],
+        "rightPicks": [
+          6,
+          7
+        ]
+      },
+      "createdAt": 1763146443914
+    },
+    {
+      "code": "VDYSER",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 8,
+        "actionCount": 0,
+        "leftBans": [
+          1,
+          2,
+          9,
+          10
+        ],
+        "rightBans": [
+          3,
+          4,
+          12,
+          11
+        ],
+        "leftPicks": [
+          5,
+          8
+        ],
+        "rightPicks": [
+          6,
+          7,
+          13
+        ]
+      },
+      "createdAt": 1763147208960
+    },
+    {
+      "code": "YAEANL",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": []
+      },
+      "createdAt": 1763147480247
+    },
+    {
+      "code": "RZ47UO",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": []
+      },
+      "createdAt": 1763147512641
+    },
+    {
+      "code": "LQ6MT1",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 5,
+        "actionCount": 1,
+        "leftBans": [
+          1,
+          4,
+          14
+        ],
+        "rightBans": [
+          5,
+          2
+        ],
+        "leftPicks": [
+          10,
+          11
+        ],
+        "rightPicks": [
+          6,
+          9
+        ]
+      },
+      "createdAt": 1763148657569
+    },
+    {
+      "code": "TIPKMP",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": []
+      },
+      "createdAt": 1763148772562
+    },
+    {
+      "code": "KTEJ8R",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": []
+      },
+      "createdAt": 1763159151246
+    }
+  ]
+}
