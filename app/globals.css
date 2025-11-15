@@ -64,3 +64,40 @@ body {
 .team-panel-color-transition {
   transition: color 400ms ease, background-color 400ms ease, border-color 400ms ease;
 }
+
+/* Lightning border animation for active phase */
+.phase-pill {
+  position: relative;
+  z-index: 0;
+}
+
+.phase-pill::before {
+  content: '';
+  position: absolute;
+  left: -50%;
+  top: -6px;
+  width: 200%;
+  height: 6px;
+  transform: skewX(-18deg);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.phase-active-left .phase-pill::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.0) 20%, rgba(59,130,246,0.9) 50%, rgba(99,102,241,0.6) 70%, transparent 100%);
+  animation: lightning-move 1.2s linear infinite;
+  opacity: 1;
+  filter: drop-shadow(0 6px 12px rgba(59,130,246,0.18));
+}
+
+.phase-active-right .phase-pill::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.0) 20%, rgba(239,68,68,0.95) 50%, rgba(244,63,94,0.6) 70%, transparent 100%);
+  animation: lightning-move 1.2s linear infinite;
+  opacity: 1;
+  filter: drop-shadow(0 6px 12px rgba(239,68,68,0.18));
+}
+
+@keyframes lightning-move {
+  0% { transform: translateX(-100%) skewX(-18deg); }
+  100% { transform: translateX(100%) skewX(-18deg); }
+}

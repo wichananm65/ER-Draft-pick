@@ -1190,36 +1190,49 @@
       "createdAt": 1763198935587
     },
     {
-      "code": "6PPTNZ",
+      "code": "M30LF4",
       "ownerSide": "left",
       "state": {
-        "currentPhase": 8,
-        "actionCount": 0,
+        "currentPhase": 6,
+        "actionCount": 1,
         "leftBans": [
           1,
           2,
-          8,
-          9
+          9,
+          10
         ],
         "rightBans": [
           3,
-          4,
-          82,
-          72
+          6,
+          20
         ],
         "leftPicks": [
-          43,
-          7
+          4,
+          61
         ],
         "rightPicks": [
-          5,
-          6,
-          49
+          7,
+          8
         ],
         "savedRounds": [],
         "swapSides": false
       },
-      "createdAt": 1763198961573
+      "createdAt": 1763200085626
+    },
+    {
+      "code": "3A8YD1",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": [],
+        "savedRounds": [],
+        "swapSides": false
+      },
+      "createdAt": 1763200406081
     }
   ]
 }

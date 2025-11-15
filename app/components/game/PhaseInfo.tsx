@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Phase } from '@/lib/gameData';
 import type { Side } from '@/app/types';
 
@@ -47,6 +47,19 @@ export default function PhaseInfo({
 
   const userIsVisuallyLeft = swapSides ? userSide === 'right' : userSide === 'left';
   const restartButtonColorClass = userIsVisuallyLeft ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700';
+  // flash/pulse when phase changes to make it more obvious
+  const [flash, setFlash] = useState(false);
+  const prevPhaseDescRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const desc = currentPhaseData ? currentPhaseData.desc : null;
+    if (prevPhaseDescRef.current && desc && prevPhaseDescRef.current !== desc) {
+      setFlash(true);
+      const t = setTimeout(() => setFlash(false), 900);
+      return () => clearTimeout(t);
+    }
+    prevPhaseDescRef.current = desc;
+  }, [currentPhaseData]);
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6 text-center">
       {!isStarted && startCountdown == null ? (
@@ -82,13 +95,21 @@ export default function PhaseInfo({
         </>
       ) : !isGameOver && currentPhaseData ? (
         <>
-          <h3 className="text-2xl font-bold text-white mb-2">
-            {currentPhaseData.desc} ({actionCount}/{currentPhaseData.count})
-          </h3>
-          <p className="text-gray-400">
-            {currentPhaseData.side === 'left' ? '🔵' : '🔴'} -
-            {currentPhaseData.action === 'ban' ? ' กำลังแบนตัวละคร' : ' กำลังเลือกตัวละคร'}
-          </p>
+          <div
+            className={`mx-auto inline-flex items-center gap-3 px-4 py-2 rounded-lg transition-transform duration-300 ${
+              flash ? 'scale-105 shadow-2xl' : ''
+            } ${currentPhaseData.side === 'left' ? 'phase-active-left' : 'phase-active-right'}`}
+            role="status"
+            aria-live="polite"
+          >
+            <div className={`w-3.5 h-3.5 rounded-full ${currentPhaseData.side === 'left' ? 'bg-blue-500' : 'bg-red-500'}`} />
+            <div className="text-left">
+              <h3 className="text-2xl font-bold text-white leading-tight">
+                {currentPhaseData.desc}
+              </h3>
+              <div className="text-sm text-gray-400">({actionCount}/{currentPhaseData.count}) • {currentPhaseData.action === 'ban' ? 'แบน' : 'เลือก'}</div>
+            </div>
+          </div>
           
           <div className="mt-3 flex flex-col items-center gap-2">
             {startCountdown != null ? (
