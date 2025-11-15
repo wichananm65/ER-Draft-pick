@@ -44,7 +44,7 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
       const capacity = await checkRoomCapacity(code);
 
       if (!capacity.hasLeft) {
-        setError('ห้องนี้ยังไม่มีผู้เล่นฝั่งซ้าย กรุณาตรวจสอบรหัสห้อง');
+        setError('ห้องนี้ยังไม่มีผู้เล่นฝั่ง 🔵 กรุณาตรวจสอบรหัสห้อง');
         setLoading(false);
         return;
       }
@@ -111,7 +111,7 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
               <Users size={20} />
               สร้างห้องใหม่
             </button>
-            <p className="text-xs text-gray-400 mt-2">คุณจะเป็นผู้เล่นฝั่งซ้าย (Blue)</p>
+            <p className="text-xs text-gray-400 mt-2">คุณจะเป็นผู้เล่น 🔵 (Blue)</p>
           </div>
 
           <div className="relative">

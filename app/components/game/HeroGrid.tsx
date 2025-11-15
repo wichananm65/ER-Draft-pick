@@ -34,7 +34,7 @@ export default function HeroGrid({ heroes, getHeroStatus, onHeroClick, isClickab
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 overflow-y-auto pr-2">
+      <div className="grid grid-cols-2 gap-3 overflow-y-auto pr-2 flex-1 min-h-0">
         {filteredHeroes.map((hero) => {
           const status = getHeroStatus(hero.id);
           const clickable = isClickable(hero.id);

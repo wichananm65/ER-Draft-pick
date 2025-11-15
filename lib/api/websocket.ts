@@ -16,6 +16,11 @@ export type MessageType =
   | "player-joined"
   | "player-left"
   | "state-updated"
+  | "ready-to-start-status"
+  | "restart-ready-status"
+  | "restart-approved"
+  | "ready-to-start"
+  | "ready-to-restart"
   | "room-state"
   | "capacity-check"
   | "error";
@@ -44,18 +49,22 @@ class WebSocketClient {
   private isIntentionallyClosed = false;
 
   constructor() {
+    // 1. If environment variable is set (Render production)
     if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_WS_URL) {
       this.url = process.env.NEXT_PUBLIC_WS_URL;
       return;
     }
 
+    // 2. Browser environment
     if (typeof window !== "undefined") {
       const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-      const host = window.location.hostname;
-      this.url = `${protocol}://${host}`;
-    } else {
-      this.url = "ws://localhost:3001/ws";
+      const host = window.location.host; // ใช้ host (รวม port เวลา dev)
+      this.url = `${protocol}://${host}/ws`; // ← ต้องใส่ /ws ที่นี่
+      return;
     }
+
+    // 3. Server-side fallback (SSR, dev)
+    this.url = "ws://localhost:3001/ws";
   }
 
   connect(): Promise<void> {

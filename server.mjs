@@ -13,6 +13,8 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 // In-memory storage for active rooms (mirrors DB for fast access)
 const rooms = new Map();
 const playerConnections = new Map(); // playerSide+roomCode -> ws connection
+const readyToStart = new Map(); // roomCode -> Set of sides ready to start initial game
+const readyToRestart = new Map(); // roomCode -> Set of sides ready to restart game
 
 // Lightweight JSON DB using lowdb (no native bindings)
 const adapter = new JSONFileSync("./rooms.json");
@@ -83,6 +85,10 @@ class Room {
     this.rightBans = [];
     this.leftPicks = [];
     this.rightPicks = [];
+    this.leftName = undefined;
+    this.rightName = undefined;
+    this.savedRounds = [];
+    this.swapSides = false;
     this.leftPlayer = null;
     this.rightPlayer = null;
     this.spectators = new Set();
@@ -97,6 +103,10 @@ class Room {
       rightBans: this.rightBans,
       leftPicks: this.leftPicks,
       rightPicks: this.rightPicks,
+      leftName: this.leftName,
+      rightName: this.rightName,
+      savedRounds: this.savedRounds,
+      swapSides: this.swapSides,
     };
   }
 
@@ -110,6 +120,14 @@ class Room {
     if (newState.leftPicks !== undefined) this.leftPicks = newState.leftPicks;
     if (newState.rightPicks !== undefined)
       this.rightPicks = newState.rightPicks;
+    if (Object.prototype.hasOwnProperty.call(newState, 'leftName'))
+      this.leftName = newState.leftName;
+    if (Object.prototype.hasOwnProperty.call(newState, 'rightName'))
+      this.rightName = newState.rightName;
+    if (Object.prototype.hasOwnProperty.call(newState, 'savedRounds'))
+      this.savedRounds = Array.isArray(newState.savedRounds) ? newState.savedRounds : this.savedRounds;
+    if (Object.prototype.hasOwnProperty.call(newState, 'swapSides'))
+      this.swapSides = !!newState.swapSides;
   }
 }
 
@@ -225,6 +243,12 @@ wss.on("connection", (ws) => {
           break;
         case "check-room-capacity":
           handleCheckCapacity(ws, message);
+          break;
+        case "ready-to-start":
+          handleReadyToStart(ws, message);
+          break;
+        case "ready-to-restart":
+          handleReadyToRestart(ws, message);
           break;
         default:
           console.log("Unknown message type:", message.type);
@@ -467,6 +491,113 @@ function handleCheckCapacity(ws, message) {
       exists: true,
     })
   );
+}
+
+function handleReadyToStart(ws, message) {
+  const { roomCode, side } = message;
+
+  const room = rooms.get(roomCode);
+  if (!room) {
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room not found",
+      })
+    );
+    return;
+  }
+
+  // Initialize ready set for this room if not exists
+  if (!readyToStart.has(roomCode)) {
+    readyToStart.set(roomCode, new Set());
+  }
+
+  const readySet = readyToStart.get(roomCode);
+  readySet.add(side);
+
+  // Notify all about who's ready
+  broadcastToRoom(roomCode, {
+    type: "ready-to-start-status",
+    readyLeft: readySet.has('left'),
+    readyRight: readySet.has('right'),
+    roomState: room.getState(),
+  });
+
+  console.log(`Player ${side} ready to start in room ${roomCode}`);
+
+  // Both ready, clear the set (will start via client countdown)
+  if (readySet.has('left') && readySet.has('right')) {
+    readyToStart.delete(roomCode);
+  }
+}
+
+function handleReadyToRestart(ws, message) {
+  const { roomCode, side } = message;
+
+  const room = rooms.get(roomCode);
+  if (!room) {
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room not found",
+      })
+    );
+    return;
+  }
+
+  // Track ready-to-restart per room
+  if (!readyToRestart.has(roomCode)) {
+    readyToRestart.set(roomCode, new Set());
+  }
+
+  const readySet = readyToRestart.get(roomCode);
+  readySet.add(side);
+
+  // Log and immediately acknowledge to the sender to avoid perceived lag
+  console.log(`Restart ready received from ${side} in room ${roomCode}. Ready set: left=${readySet.has('left')}, right=${readySet.has('right')}`);
+
+  // Send immediate ack to the sender
+  try {
+    ws.send(JSON.stringify({
+      type: "restart-ready-status",
+      readyLeft: readySet.has('left'),
+      readyRight: readySet.has('right'),
+      roomState: room.getState(),
+    }));
+  } catch {
+    // ignore send errors to sender
+  }
+
+  // Broadcast current readiness to all participants (including sender)
+  broadcastToRoom(roomCode, {
+    type: "restart-ready-status",
+    readyLeft: readySet.has('left'),
+    readyRight: readySet.has('right'),
+    roomState: room.getState(),
+  });
+
+  // When both ready, reset the game state and notify
+  if (readySet.has('left') && readySet.has('right')) {
+    readyToRestart.delete(roomCode);
+
+    // Toggle swapSides so clients flip positions/colors/order
+    const newSwap = !room.swapSides;
+
+    // Reset room state (keep names and saved rounds) and set swap flag
+    room.updateState({
+      currentPhase: 0,
+      actionCount: 0,
+      leftBans: [],
+      rightBans: [],
+      leftPicks: [],
+      rightPicks: [],
+      swapSides: newSwap,
+    });
+
+    // Broadcast updated state and a restart-approved event for clients to start countdown
+    broadcastToRoom(roomCode, { type: "state-updated", roomState: room.getState() });
+    broadcastToRoom(roomCode, { type: "restart-approved", roomState: room.getState() });
+  }
 }
 
 // Health check endpoint

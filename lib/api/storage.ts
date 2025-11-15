@@ -28,12 +28,9 @@ export const initializeRoom = async (roomCode: string): Promise<void> => {
       await wsClient.connect();
     }
 
-    wsClient.send({
-      type: 'init-room',
-      roomCode,
-    });
-
-    await waitForMessage('room-initialized');
+    const wait = waitForMessage('room-initialized');
+    wsClient.send({ type: 'init-room', roomCode });
+    await wait;
     console.log(`Room ${roomCode} initialized`);
   } catch (err) {
     console.error('Failed to initialize room:', err);
@@ -47,12 +44,9 @@ export const loadGameState = async (roomCode: string): Promise<GameState | null>
       await wsClient.connect();
     }
 
-    wsClient.send({
-      type: 'get-room-state',
-      roomCode,
-    });
-
-    const response = await waitForMessage('room-state');
+    const wait = waitForMessage('room-state');
+    wsClient.send({ type: 'get-room-state', roomCode });
+    const response = await wait;
     const roomState = response.roomState as unknown as GameState;
     return roomState;
   } catch (err) {
@@ -86,12 +80,9 @@ export const checkRoomCapacity = async (roomCode: string): Promise<{ hasLeft: bo
       await wsClient.connect();
     }
 
-    wsClient.send({
-      type: 'check-room-capacity',
-      roomCode,
-    });
-
-    const response = await waitForMessage('capacity-check');
+    const wait = waitForMessage('capacity-check');
+    wsClient.send({ type: 'check-room-capacity', roomCode });
+    const response = await wait;
     return {
       hasLeft: response.hasLeft as boolean,
       hasRight: response.hasRight as boolean,
@@ -108,13 +99,9 @@ export const registerPlayer = async (roomCode: string, side: 'left' | 'right'): 
       await wsClient.connect();
     }
 
-    wsClient.send({
-      type: 'join-room',
-      roomCode,
-      side,
-    });
-
-    const response = await waitForMessage('room-joined', 5000);
+    const wait = waitForMessage('room-joined', 5000);
+    wsClient.send({ type: 'join-room', roomCode, side });
+    const response = await wait;
     return response.type === 'room-joined';
   } catch (err) {
     console.error('Failed to register player:', err);

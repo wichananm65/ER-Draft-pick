@@ -24,3 +24,43 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Swap transition styles for team panels */
+.swap-container {
+  /* container for swap animation */
+}
+.team-slot {
+  will-change: transform, opacity;
+}
+
+/* Circular shrink-then-expand animation to hide content swap mid-transition */
+.swap-anim .team-slot {
+  animation: swap-circle 600ms cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes swap-circle {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    border-radius: 8px;
+  }
+  45% {
+    transform: scale(0.18) translateY(-6%);
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+  55% {
+    transform: scale(0.18) translateY(-6%);
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    border-radius: 8px;
+  }
+}
+
+.team-panel-color-transition {
+  transition: color 400ms ease, background-color 400ms ease, border-color 400ms ease;
+}

@@ -7,17 +7,35 @@ interface TeamPanelProps {
   side: 'left' | 'right';
   bans: number[];
   picks: number[];
+  name?: string;
+  isEditable?: boolean;
+  onNameChange?: (name: string) => void;
+  // If true, visual rendering should flip colors/icons (used when global swapSides is active)
+  isVisuallyLeft?: boolean;
 }
 
-export default function TeamPanel({ side, bans, picks }: TeamPanelProps) {
-  const isLeft = side === 'left';
+export default function TeamPanel({ side, bans, picks, name, isEditable = false, onNameChange, isVisuallyLeft }: TeamPanelProps) {
+  // Determine visual side: if `isVisuallyLeft` is provided use it, otherwise derive from logical `side`.
+  const isLeft = typeof isVisuallyLeft === 'boolean' ? isVisuallyLeft : side === 'left';
   const borderColor = isLeft ? 'border-blue-600' : 'border-red-600';
   const teamColor = isLeft ? 'text-blue-400' : 'text-red-400';
-  const teamName = isLeft ? '🔵 ทีมซ้าย (Blue)' : '🔴 ทีมขวา (Red)';
+  const defaultName = isLeft ? '🔵 ทีม (Blue)' : '🔴 ทีม (Red)';
+  const teamName = name ? `${isLeft ? '🔵' : '🔴'} ${name}` : defaultName;
+  // Add color transition helper class so color/border changes animate when swap occurs
 
   return (
-    <div className={`bg-gray-800 border ${borderColor} rounded-lg p-4`}>
-      <h3 className={`text-xl font-bold ${teamColor} mb-4`}>{teamName}</h3>
+    <div className={`bg-gray-800 border ${borderColor} rounded-lg p-4 team-panel-color-transition`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className={`text-xl font-bold ${teamColor}`}>{teamName}</h3>
+        {isEditable ? (
+          <input
+            value={name ?? ''}
+            onChange={(e) => onNameChange?.(e.target.value)}
+            placeholder="กรอกชื่อทีม"
+            className="ml-2 bg-gray-700/50 border border-gray-600 text-sm text-white rounded px-2 py-1"
+          />
+        ) : null}
+      </div>
 
       <div className="mb-4">
         <h4 className="text-sm font-semibold text-gray-400 mb-2">แบน ({bans.length}):</h4>
@@ -40,7 +58,7 @@ export default function TeamPanel({ side, bans, picks }: TeamPanelProps) {
             const hero = heroes.find(h => h.id === id);
             const pickClass = isLeft ? 'bg-blue-600 text-white' : 'bg-red-600 text-white';
             return (
-              <div key={id} className={`${pickClass} px-3 py-1 rounded text-sm font-semibold`}>
+              <div key={id} className={`${pickClass} px-3 py-1 rounded text-sm font-semibold team-panel-color-transition`}>
                 {hero?.name}
               </div>
             );

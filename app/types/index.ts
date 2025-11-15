@@ -12,6 +12,10 @@ export interface GameState {
   rightBans: number[];
   leftPicks: number[];
   rightPicks: number[];
+  leftName?: string;
+  rightName?: string;
+  savedRounds?: Array<Record<string, unknown>>;
+  swapSides?: boolean;
 }
 
 export type HeroStatus = 'available' | 'banned' | 'picked-left' | 'picked-right';
