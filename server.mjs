@@ -1,21 +1,21 @@
 // ======================================
 // server.mjs - Real-time Pick/Ban Server (ESM)
 // ======================================
-import express from 'express';
-import WebSocket, { WebSocketServer } from 'ws';
-import http from 'http';
-import { LowSync, JSONFileSync } from 'lowdb';
+import express from "express";
+import WebSocket, { WebSocketServer } from "ws";
+import http from "http";
+import { LowSync, JSONFileSync } from "lowdb";
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: '/ws' });
+const wss = new WebSocketServer({ server, path: "/ws" });
 
 // In-memory storage for active rooms (mirrors DB for fast access)
 const rooms = new Map();
 const playerConnections = new Map(); // playerSide+roomCode -> ws connection
 
 // Lightweight JSON DB using lowdb (no native bindings)
-const adapter = new JSONFileSync('./rooms.json');
+const adapter = new JSONFileSync("./rooms.json");
 const db = new LowSync(adapter);
 db.read();
 if (!db.data) db.data = { rooms: [] };
@@ -25,7 +25,7 @@ const roomClients = new Map(); // roomCode -> Set(ws)
 function createRoomInDb(code, ownerSide, state = {}) {
   db.read();
   if (!db.data) db.data = { rooms: [] };
-  const existing = db.data.rooms.find(r => r.code === code);
+  const existing = db.data.rooms.find((r) => r.code === code);
   const now = Date.now();
   if (!existing) {
     db.data.rooms.push({ code, ownerSide, state: state || {}, createdAt: now });
@@ -39,15 +39,20 @@ function createRoomInDb(code, ownerSide, state = {}) {
 function getRoomFromDb(code) {
   db.read();
   if (!db.data) db.data = { rooms: [] };
-  const row = db.data.rooms.find(r => r.code === code);
+  const row = db.data.rooms.find((r) => r.code === code);
   if (!row) return null;
-  return { code: row.code, ownerSide: row.ownerSide, state: row.state || {}, createdAt: row.createdAt };
+  return {
+    code: row.code,
+    ownerSide: row.ownerSide,
+    state: row.state || {},
+    createdAt: row.createdAt,
+  };
 }
 
 function updateRoomStateInDb(code, state = {}) {
   db.read();
   if (!db.data) db.data = { rooms: [] };
-  const row = db.data.rooms.find(r => r.code === code);
+  const row = db.data.rooms.find((r) => r.code === code);
   if (!row) return;
   row.state = state || {};
   db.write();
@@ -56,14 +61,16 @@ function updateRoomStateInDb(code, state = {}) {
 function deleteRoomFromDb(code) {
   db.read();
   if (!db.data) db.data = { rooms: [] };
-  db.data.rooms = db.data.rooms.filter(r => r.code !== code);
+  db.data.rooms = db.data.rooms.filter((r) => r.code !== code);
   db.write();
 }
 
 function listRoomsFromDb() {
   db.read();
   if (!db.data) db.data = { rooms: [] };
-  return (db.data.rooms || []).slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  return (db.data.rooms || [])
+    .slice()
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
 // Room state interface
@@ -94,12 +101,15 @@ class Room {
   }
 
   updateState(newState) {
-    if (newState.currentPhase !== undefined) this.currentPhase = newState.currentPhase;
-    if (newState.actionCount !== undefined) this.actionCount = newState.actionCount;
+    if (newState.currentPhase !== undefined)
+      this.currentPhase = newState.currentPhase;
+    if (newState.actionCount !== undefined)
+      this.actionCount = newState.actionCount;
     if (newState.leftBans !== undefined) this.leftBans = newState.leftBans;
     if (newState.rightBans !== undefined) this.rightBans = newState.rightBans;
     if (newState.leftPicks !== undefined) this.leftPicks = newState.leftPicks;
-    if (newState.rightPicks !== undefined) this.rightPicks = newState.rightPicks;
+    if (newState.rightPicks !== undefined)
+      this.rightPicks = newState.rightPicks;
   }
 }
 
@@ -108,9 +118,13 @@ function broadcastToRoom(roomCode, message, excludeWs = null) {
   const room = rooms.get(roomCode);
   if (!room) return;
 
-  const participants = [room.leftPlayer, room.rightPlayer, ...room.spectators].filter(Boolean);
-  
-  participants.forEach(ws => {
+  const participants = [
+    room.leftPlayer,
+    room.rightPlayer,
+    ...room.spectators,
+  ].filter(Boolean);
+
+  participants.forEach((ws) => {
     if (ws && ws.readyState === WebSocket.OPEN && ws !== excludeWs) {
       ws.send(JSON.stringify(message));
     }
@@ -122,41 +136,57 @@ function cleanupConnection(ws) {
   for (const [key, connection] of playerConnections.entries()) {
     if (connection === ws) {
       playerConnections.delete(key);
-      const [side, roomCode] = key.split(':');
+      const [side, roomCode] = key.split(":");
       const room = rooms.get(roomCode);
-      
+
       if (room) {
-        if (side === 'left') {
+        if (side === "left") {
           room.leftPlayer = null;
           // if the disconnected player was the owner, delete room from DB and notify
           if (ws._isOwner) {
             deleteRoomFromDb(roomCode);
             // notify remaining participants
-            const participants = [room.leftPlayer, room.rightPlayer, ...room.spectators].filter(Boolean);
-            participants.forEach(p => {
-              try { p.send(JSON.stringify({ type: 'room-closed', roomCode })); } catch {}
-              try { p.close(); } catch {}
+            const participants = [
+              room.leftPlayer,
+              room.rightPlayer,
+              ...room.spectators,
+            ].filter(Boolean);
+            participants.forEach((p) => {
+              try {
+                p.send(JSON.stringify({ type: "room-closed", roomCode }));
+              } catch {}
+              try {
+                p.close();
+              } catch {}
             });
             rooms.delete(roomCode);
             break;
           }
-        } else if (side === 'right') {
+        } else if (side === "right") {
           room.rightPlayer = null;
-        } else if (side.startsWith('spectator')) {
+        } else if (side.startsWith("spectator")) {
           room.spectators.delete(ws);
         }
 
         // Notify others that player left
         broadcastToRoom(roomCode, {
-          type: 'player-left',
+          type: "player-left",
           side: side,
           roomState: room.getState(),
         });
 
         // Clean up empty rooms after 5 minutes
-        if (!room.leftPlayer && !room.rightPlayer && room.spectators.size === 0) {
+        if (
+          !room.leftPlayer &&
+          !room.rightPlayer &&
+          room.spectators.size === 0
+        ) {
           setTimeout(() => {
-            if (!room.leftPlayer && !room.rightPlayer && room.spectators.size === 0) {
+            if (
+              !room.leftPlayer &&
+              !room.rightPlayer &&
+              room.spectators.size === 0
+            ) {
               // remove from memory, keep DB until owner explicitly leaves
               rooms.delete(roomCode);
             }
@@ -169,48 +199,48 @@ function cleanupConnection(ws) {
 }
 
 // WebSocket connection handler
-wss.on('connection', (ws) => {
-  console.log('New WebSocket connection');
+wss.on("connection", (ws) => {
+  console.log("New WebSocket connection");
 
-  ws.on('message', (data) => {
+  ws.on("message", (data) => {
     try {
       const message = JSON.parse(data.toString());
-      console.log('Received message:', message.type);
+      console.log("Received message:", message.type);
 
       switch (message.type) {
-        case 'init-room':
+        case "init-room":
           handleInitRoom(ws, message);
           break;
-        case 'join-room':
+        case "join-room":
           handleJoinRoom(ws, message);
           break;
-        case 'spectate-room':
+        case "spectate-room":
           handleSpectateRoom(ws, message);
           break;
-        case 'update-state':
+        case "update-state":
           handleUpdateState(ws, message);
           break;
-        case 'get-room-state':
+        case "get-room-state":
           handleGetRoomState(ws, message);
           break;
-        case 'check-room-capacity':
+        case "check-room-capacity":
           handleCheckCapacity(ws, message);
           break;
         default:
-          console.log('Unknown message type:', message.type);
+          console.log("Unknown message type:", message.type);
       }
     } catch (err) {
-      console.error('Error processing message:', err);
+      console.error("Error processing message:", err);
     }
   });
 
-  ws.on('close', () => {
-    console.log('Connection closed');
+  ws.on("close", () => {
+    console.log("Connection closed");
     cleanupConnection(ws);
   });
 
-  ws.on('error', (err) => {
-    console.error('WebSocket error:', err);
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
     cleanupConnection(ws);
   });
 });
@@ -218,12 +248,14 @@ wss.on('connection', (ws) => {
 // Handlers
 function handleInitRoom(ws, message) {
   const { roomCode } = message;
-  
+
   if (rooms.has(roomCode)) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Room already exists',
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room already exists",
+      })
+    );
     return;
   }
 
@@ -233,51 +265,59 @@ function handleInitRoom(ws, message) {
   playerConnections.set(`left:${roomCode}`, ws);
   // mark this connection as owner and persist to DB
   ws._isOwner = true;
-  createRoomInDb(roomCode, 'left', room.getState());
+  createRoomInDb(roomCode, "left", room.getState());
   // track clients set for broadcasting
   roomClients.set(roomCode, new Set([ws]));
 
-  ws.send(JSON.stringify({
-    type: 'room-initialized',
-    roomCode,
-    side: 'left',
-    roomState: room.getState(),
-  }));
+  ws.send(
+    JSON.stringify({
+      type: "room-initialized",
+      roomCode,
+      side: "left",
+      roomState: room.getState(),
+    })
+  );
 
   console.log(`Room ${roomCode} created`);
 }
 
 function handleJoinRoom(ws, message) {
   const { roomCode, side } = message;
-  
+
   const room = rooms.get(roomCode);
   if (!room) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Room not found',
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room not found",
+      })
+    );
     return;
   }
 
-  if (side === 'left' && room.leftPlayer) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Left player slot already taken',
-    }));
+  if (side === "left" && room.leftPlayer) {
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Left player slot already taken",
+      })
+    );
     return;
   }
 
-  if (side === 'right' && room.rightPlayer) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Right player slot already taken',
-    }));
+  if (side === "right" && room.rightPlayer) {
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Right player slot already taken",
+      })
+    );
     return;
   }
 
-  if (side === 'left') {
+  if (side === "left") {
     room.leftPlayer = ws;
-  } else if (side === 'right') {
+  } else if (side === "right") {
     room.rightPlayer = ws;
   }
 
@@ -291,32 +331,40 @@ function handleJoinRoom(ws, message) {
   }
   clients.add(ws);
 
-  ws.send(JSON.stringify({
-    type: 'room-joined',
-    roomCode,
-    side,
-    roomState: room.getState(),
-  }));
+  ws.send(
+    JSON.stringify({
+      type: "room-joined",
+      roomCode,
+      side,
+      roomState: room.getState(),
+    })
+  );
 
   // Notify other players
-  broadcastToRoom(roomCode, {
-    type: 'player-joined',
-    side,
-    roomState: room.getState(),
-  }, ws);
+  broadcastToRoom(
+    roomCode,
+    {
+      type: "player-joined",
+      side,
+      roomState: room.getState(),
+    },
+    ws
+  );
 
   console.log(`Player (${side}) joined room ${roomCode}`);
 }
 
 function handleSpectateRoom(ws, message) {
   const { roomCode } = message;
-  
+
   const room = rooms.get(roomCode);
   if (!room) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Room not found',
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room not found",
+      })
+    );
     return;
   }
 
@@ -330,25 +378,29 @@ function handleSpectateRoom(ws, message) {
   }
   clients.add(ws);
 
-  ws.send(JSON.stringify({
-    type: 'room-spectated',
-    roomCode,
-    side: 'spectator',
-    roomState: room.getState(),
-  }));
+  ws.send(
+    JSON.stringify({
+      type: "room-spectated",
+      roomCode,
+      side: "spectator",
+      roomState: room.getState(),
+    })
+  );
 
   console.log(`Spectator joined room ${roomCode}`);
 }
 
 function handleUpdateState(ws, message) {
   const { roomCode, state } = message;
-  
+
   const room = rooms.get(roomCode);
   if (!room) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Room not found',
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room not found",
+      })
+    );
     return;
   }
 
@@ -358,11 +410,11 @@ function handleUpdateState(ws, message) {
   try {
     updateRoomStateInDb(roomCode, room.getState());
   } catch (e) {
-    console.error('Failed to persist room state to DB', e);
+    console.error("Failed to persist room state to DB", e);
   }
 
   broadcastToRoom(roomCode, {
-    type: 'state-updated',
+    type: "state-updated",
     roomState: room.getState(),
   });
 
@@ -371,54 +423,62 @@ function handleUpdateState(ws, message) {
 
 function handleGetRoomState(ws, message) {
   const { roomCode } = message;
-  
+
   const room = rooms.get(roomCode);
   if (!room) {
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: 'Room not found',
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Room not found",
+      })
+    );
     return;
   }
 
-  ws.send(JSON.stringify({
-    type: 'room-state',
-    roomState: room.getState(),
-  }));
+  ws.send(
+    JSON.stringify({
+      type: "room-state",
+      roomState: room.getState(),
+    })
+  );
 }
 
 function handleCheckCapacity(ws, message) {
   const { roomCode } = message;
-  
+
   const room = rooms.get(roomCode);
   if (!room) {
-    ws.send(JSON.stringify({
-      type: 'capacity-check',
-      hasLeft: false,
-      hasRight: false,
-      exists: false,
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "capacity-check",
+        hasLeft: false,
+        hasRight: false,
+        exists: false,
+      })
+    );
     return;
   }
 
-  ws.send(JSON.stringify({
-    type: 'capacity-check',
-    hasLeft: !!room.leftPlayer,
-    hasRight: !!room.rightPlayer,
-    exists: true,
-  }));
+  ws.send(
+    JSON.stringify({
+      type: "capacity-check",
+      hasLeft: !!room.leftPlayer,
+      hasRight: !!room.rightPlayer,
+      exists: true,
+    })
+  );
 }
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 // Server info endpoint
-app.get('/api/rooms', (req, res) => {
+app.get("/api/rooms", (req, res) => {
   try {
     const rows = listRoomsFromDb();
-    const roomList = rows.map(r => ({
+    const roomList = rows.map((r) => ({
       code: r.code,
       ownerSide: r.ownerSide,
       createdAt: r.createdAt,
@@ -431,8 +491,8 @@ app.get('/api/rooms', (req, res) => {
     }));
     res.json({ rooms: roomList });
   } catch (err) {
-    console.error('Failed to list rooms from DB', err);
-    res.status(500).json({ error: 'failed to list rooms' });
+    console.error("Failed to list rooms from DB", err);
+    res.status(500).json({ error: "failed to list rooms" });
   }
 });
 
@@ -445,10 +505,10 @@ server.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, closing server...');
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, closing server...");
   server.close(() => {
-    console.log('Server closed');
+    console.log("Server closed");
     process.exit(0);
   });
 });

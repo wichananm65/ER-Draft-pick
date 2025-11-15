@@ -3,26 +3,33 @@
  * WebSocket client for real-time communication with the backend server
  */
 
-export type MessageType = 
-  | 'init-room'
-  | 'join-room'
-  | 'spectate-room'
-  | 'update-state'
-  | 'get-room-state'
-  | 'check-room-capacity'
-  | 'room-initialized'
-  | 'room-joined'
-  | 'room-spectated'
-  | 'player-joined'
-  | 'player-left'
-  | 'state-updated'
-  | 'room-state'
-  | 'capacity-check'
-  | 'error';
+export type MessageType =
+  | "init-room"
+  | "join-room"
+  | "spectate-room"
+  | "update-state"
+  | "get-room-state"
+  | "check-room-capacity"
+  | "room-initialized"
+  | "room-joined"
+  | "room-spectated"
+  | "player-joined"
+  | "player-left"
+  | "state-updated"
+  | "room-state"
+  | "capacity-check"
+  | "error";
 
 export interface WSMessage {
   type: MessageType;
-  [key: string]: string | number | boolean | null | string[] | number[] | Record<string, unknown>;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | string[]
+    | number[]
+    | Record<string, unknown>;
 }
 
 type MessageHandler = (message: WSMessage) => void;
@@ -37,20 +44,17 @@ class WebSocketClient {
   private isIntentionallyClosed = false;
 
   constructor() {
-    const env = (typeof process !== 'undefined' && process.env) ? (process.env as unknown as Record<string, string | undefined>) : undefined;
-    const envUrl = env ? env.NEXT_PUBLIC_WS_URL : undefined;
-    if (envUrl) {
-      this.url = envUrl;
+    if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_WS_URL) {
+      this.url = process.env.NEXT_PUBLIC_WS_URL;
       return;
     }
 
-    if (typeof window !== 'undefined') {
-      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    if (typeof window !== "undefined") {
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
       const host = window.location.hostname;
-      const port = ':3001';
-      this.url = `${protocol}://${host}${port}/ws`;
+      this.url = `${protocol}://${host}`;
     } else {
-      this.url = 'ws://localhost:3001/ws';
+      this.url = "ws://localhost:3001/ws";
     }
   }
 
@@ -66,7 +70,7 @@ class WebSocketClient {
         this.isIntentionallyClosed = false;
 
         this.ws.onopen = () => {
-          console.log('WebSocket connected');
+          console.log("WebSocket connected");
           this.reconnectAttempts = 0;
           resolve();
         };
@@ -76,12 +80,12 @@ class WebSocketClient {
         };
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.error("WebSocket error:", error);
           reject(error);
         };
 
         this.ws.onclose = () => {
-          console.log('WebSocket disconnected');
+          console.log("WebSocket disconnected");
           if (!this.isIntentionallyClosed) {
             this.attemptReconnect();
           }
@@ -94,16 +98,18 @@ class WebSocketClient {
 
   private attemptReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnect attempts reached');
+      console.error("Max reconnect attempts reached");
       return;
     }
 
     this.reconnectAttempts++;
-    console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+    console.log(
+      `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`
+    );
 
     setTimeout(() => {
-      this.connect().catch(err => {
-        console.error('Reconnect failed:', err);
+      this.connect().catch((err) => {
+        console.error("Reconnect failed:", err);
       });
     }, this.reconnectDelay * this.reconnectAttempts);
   }
@@ -111,7 +117,7 @@ class WebSocketClient {
   private handleMessage(message: WSMessage) {
     const handlers = this.messageHandlers.get(message.type);
     if (handlers) {
-      handlers.forEach(handler => handler(message));
+      handlers.forEach((handler) => handler(message));
     }
   }
 
@@ -144,7 +150,7 @@ class WebSocketClient {
 
   send(message: WSMessage): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('WebSocket not connected');
+      console.error("WebSocket not connected");
       return;
     }
     this.ws.send(JSON.stringify(message));
