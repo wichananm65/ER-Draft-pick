@@ -7,16 +7,27 @@ import { wsClient } from './websocket';
 import type { WSMessage } from './websocket';
 import type { GameState } from '@/app/types';
 
-const waitForMessage = (type: string, timeout = 5000): Promise<WSMessage> => {
+const waitForMessage = (type: string, timeout = 2000): Promise<WSMessage> => {
   return new Promise((resolve, reject) => {
+    // ensure unsubscribe is defined before the timer can fire
+    let unsubscribe: (() => void) | undefined = undefined;
+
     const timer = setTimeout(() => {
-      unsubscribe();
+      try {
+        unsubscribe?.();
+      } catch (e) {
+        // ignore
+      }
       reject(new Error(`Timeout waiting for ${type}`));
     }, timeout);
 
-    const unsubscribe = wsClient.on(type as unknown as 'init-room', (message) => {
+    unsubscribe = wsClient.on(type as unknown as 'init-room', (message) => {
       clearTimeout(timer);
-      unsubscribe();
+      try {
+        unsubscribe?.();
+      } catch (e) {
+        // ignore
+      }
       resolve(message);
     });
   });
@@ -99,7 +110,7 @@ export const registerPlayer = async (roomCode: string, side: 'left' | 'right'): 
       await wsClient.connect();
     }
 
-    const wait = waitForMessage('room-joined', 5000);
+    const wait = waitForMessage('room-joined', 2000);
     wsClient.send({ type: 'join-room', roomCode, side });
     const response = await wait;
     return response.type === 'room-joined';
@@ -116,14 +127,23 @@ export const registerSpectator = async (roomCode: string): Promise<boolean> => {
     }
 
     const promise = new Promise<unknown>((resolve, reject) => {
+      let unsubscribe: (() => void) | undefined = undefined;
       const timer = setTimeout(() => {
-        unsubscribe();
+        try {
+          unsubscribe?.();
+        } catch (e) {
+          // ignore
+        }
         reject(new Error('Timeout waiting for room-spectated'));
-      }, 5000);
+      }, 2000);
 
-      const unsubscribe = wsClient.on('room-spectated', (message) => {
+      unsubscribe = wsClient.on('room-spectated', (message) => {
         clearTimeout(timer);
-        unsubscribe();
+        try {
+          unsubscribe?.();
+        } catch (e) {
+          // ignore
+        }
         resolve(message);
       });
     });

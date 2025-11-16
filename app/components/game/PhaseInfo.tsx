@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '@/lib/i18n';
 import type { Phase } from '@/lib/gameData';
 import type { Side } from '@/app/types';
 
@@ -39,6 +40,8 @@ export default function PhaseInfo({
   restartReadyRight = false
   , swapSides = false
 }: PhaseInfoProps) {
+  const { t } = useTranslation();
+
   // Visual mapping: when swapped, the left visual slot represents logical right team
   const visualReadyToStartLeft = swapSides ? readyToStartRight : readyToStartLeft;
   const visualReadyToStartRight = swapSides ? readyToStartLeft : readyToStartRight;
@@ -55,8 +58,8 @@ export default function PhaseInfo({
     const desc = currentPhaseData ? currentPhaseData.desc : null;
     if (prevPhaseDescRef.current && desc && prevPhaseDescRef.current !== desc) {
       setFlash(true);
-      const t = setTimeout(() => setFlash(false), 900);
-      return () => clearTimeout(t);
+      const h = setTimeout(() => setFlash(false), 900);
+      return () => clearTimeout(h);
     }
     prevPhaseDescRef.current = desc;
   }, [currentPhaseData]);
@@ -64,7 +67,7 @@ export default function PhaseInfo({
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6 text-center">
       {!isStarted && startCountdown == null ? (
         <>
-          <h3 className="text-2xl font-bold text-white mb-2">รอผู้เล่นพร้อม</h3>
+          <h3 className="text-2xl font-bold text-white mb-2">{t('waiting_for_players')}</h3>
           {userSide !== 'spectator' && (
             <button
               onClick={onReadyToStart}
@@ -76,8 +79,8 @@ export default function PhaseInfo({
               disabled={(userSide === 'left' && readyToStartLeft) || (userSide === 'right' && readyToStartRight)}
             >
               {(userSide === 'left' && readyToStartLeft) || (userSide === 'right' && readyToStartRight)
-                ? 'รอฝั่งตรงข้าม...'
-                : 'พร้อม'}
+                ? t('waiting_opponent')
+                : t('ready')}
             </button>
           )}
           {(visualReadyToStartLeft || visualReadyToStartRight) && (
@@ -105,9 +108,9 @@ export default function PhaseInfo({
             <div className={`w-3.5 h-3.5 rounded-full ${currentPhaseData.side === 'left' ? 'bg-blue-500' : 'bg-red-500'}`} />
             <div className="text-left">
               <h3 className="text-2xl font-bold text-white leading-tight">
-                {currentPhaseData.desc}
+                {currentPhaseData ? t(currentPhaseData.desc) : ''}
               </h3>
-              <div className="text-sm text-gray-400">({actionCount}/{currentPhaseData.count}) • {currentPhaseData.action === 'ban' ? 'แบน' : 'เลือก'}</div>
+              <div className="text-sm text-gray-400">({actionCount}/{currentPhaseData?.count ?? 0}) • {currentPhaseData?.action === 'ban' ? t('ban') : t('pick')}</div>
             </div>
           </div>
           
@@ -115,13 +118,13 @@ export default function PhaseInfo({
             {startCountdown != null ? (
               <div className="flex flex-col items-center">
                 <div className="text-yellow-300 text-6xl font-extrabold">{startCountdown}</div>
-                <div className="text-sm text-yellow-200">เริ่มใน</div>
+                <div className="text-sm text-yellow-200">{t('start_in')}</div>
               </div>
             ) : null}
 
             {actionTimer != null ? (
               <div className="w-full max-w-sm">
-                <div className="text-green-300 text-5xl font-extrabold text-center">{actionTimer}s</div>
+                <div className="text-green-300 text-5xl font-extrabold text-center">{actionTimer}{t('seconds')}</div>
                 <div className="h-2 bg-gray-700 rounded mt-2 overflow-hidden">
                   <div
                     className="h-2 bg-green-400"
@@ -137,17 +140,17 @@ export default function PhaseInfo({
               onClick={onSave}
               className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg"
             >
-              บันทึกเกมนี้
+              {t('save_game')}
             </button>
           </div>
         </>
       ) : (
         <>
-          <h3 className="text-3xl font-bold text-green-400 mb-2">✓ การเลือกเสร็จสิ้น</h3>
+          <h3 className="text-3xl font-bold text-green-400 mb-2">✓ {t('finished')}</h3>
           {startCountdown != null && (
             <div className="mt-2 flex flex-col items-center">
               <div className="text-yellow-300 text-5xl font-extrabold">{startCountdown}</div>
-              <div className="text-sm text-yellow-200">เริ่มใน</div>
+              <div className="text-sm text-yellow-200">{t('start_in')}</div>
             </div>
           )}
           <div className="mt-3 flex items-center gap-3 justify-center">
@@ -155,7 +158,7 @@ export default function PhaseInfo({
               onClick={onSave}
               className="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2 rounded-lg"
             >
-              บันทึกผลเกมนี้
+              {t('save_results')}
             </button>
             {userSide !== 'spectator' && (
               <button
@@ -168,8 +171,8 @@ export default function PhaseInfo({
                 disabled={(userSide === 'left' && restartReadyLeft) || (userSide === 'right' && restartReadyRight)}
               >
                 {(userSide === 'left' && restartReadyLeft) || (userSide === 'right' && restartReadyRight)
-                  ? 'รอฝั่งตรงข้าม...'
-                  : 'เริ่มเกมใหม่'}
+                  ? t('waiting_opponent')
+                  : t('restart_game')}
               </button>
             )}
           </div>

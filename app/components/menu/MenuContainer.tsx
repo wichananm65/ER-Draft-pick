@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslation } from '@/lib/i18n';
 import { Users, Eye, AlertCircle } from 'lucide-react';
 import { checkRoomCapacity, registerPlayer, initializeRoom, registerSpectator } from '@/lib/api/storage';
 import type { Side } from '@/app/types';
@@ -14,6 +15,7 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
   const [inputCode, setInputCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -24,11 +26,12 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
     const code = generateRoomCode();
 
     try {
+      // initializeRoom already assigns the creating connection as the left player on the server,
+      // so don't call registerPlayer again (that would try to join as left and be rejected).
       await initializeRoom(code);
-      await registerPlayer(code, 'left');
       onCreateRoom(code, 'left');
     } catch {
-      setError('ไม่สามารถสร้างห้องได้ กรุณาลองใหม่อีกครั้ง');
+      setError(t('create_room_failed'));
     } finally {
       setLoading(false);
     }
@@ -44,13 +47,13 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
       const capacity = await checkRoomCapacity(code);
 
       if (!capacity.hasLeft) {
-        setError('ห้องนี้ยังไม่มีผู้เล่นฝั่ง 🔵 กรุณาตรวจสอบรหัสห้อง');
+        setError(t('no_left_player'));
         setLoading(false);
         return;
       }
 
       if (capacity.hasRight) {
-        setError('ห้องเต็มแล้ว! มีผู้เล่นครบ 2 คนแล้ว กรุณาเข้าเป็น Spectator แทน');
+        setError(t('room_full'));
         setLoading(false);
         return;
       }
@@ -59,7 +62,7 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
       setError('');
       onJoinRoom(code, 'right');
     } catch {
-      setError('ไม่สามารถเข้าร่วมห้องได้ กรุณาตรวจสอบรหัสห้อง');
+      setError(t('join_failed'));
     } finally {
       setLoading(false);
     }
@@ -75,21 +78,21 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
       const capacity = await checkRoomCapacity(code);
 
       if (!capacity.hasLeft) {
-        setError('ห้องนี้ยังไม่มีผู้เล่น กรุณาตรวจสอบรหัสห้อง');
+        setError(t('room_missing'));
         setLoading(false);
         return;
       }
 
       const ok = await registerSpectator(code);
       if (!ok) {
-        setError('ไม่สามารถเข้าดูห้องได้');
+        setError(t('cannot_spectate'));
         setLoading(false);
         return;
       }
       setError('');
       onJoinRoom(code, 'spectator');
     } catch {
-      setError('ไม่สามารถดูการแข่งขันได้ กรุณาตรวจสอบรหัสห้อง');
+      setError(t('cannot_watch'));
     } finally {
       setLoading(false);
     }
@@ -109,9 +112,9 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Users size={20} />
-              สร้างห้องใหม่
+              {t('create_room')}
             </button>
-            <p className="text-xs text-gray-400 mt-2">คุณจะเป็นผู้เล่น 🔵 (Blue)</p>
+            <p className="text-xs text-gray-400 mt-2">{t('you_are_blue')}</p>
           </div>
 
           <div className="relative">
@@ -119,7 +122,7 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
               <div className="w-full border-t border-gray-600"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-800 text-gray-400">หรือ</span>
+              <span className="px-2 bg-gray-800 text-gray-400">{t('or')}</span>
             </div>
           </div>
 
@@ -127,7 +130,7 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
           <div className="space-y-3">
             <input
               type="text"
-              placeholder="ใส่รหัสห้อง..."
+              placeholder={t('enter_code_placeholder')}
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value.toUpperCase())}
               maxLength={6}
@@ -135,21 +138,21 @@ export default function MenuContainer({ onCreateRoom, onJoinRoom }: MenuContaine
             />
 
             <div className="flex gap-2">
-              <button
-                onClick={handleJoinRoom}
-                disabled={loading || !inputCode.trim()}
-                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
-              >
-                เข้าร่วม
-              </button>
-              <button
-                onClick={handleSpectateRoom}
-                disabled={loading || !inputCode.trim()}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <Eye size={18} />
-                ดู
-              </button>
+                <button
+                  onClick={handleJoinRoom}
+                  disabled={loading || !inputCode.trim()}
+                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                >
+                {t('join')}
+                </button>
+                <button
+                  onClick={handleSpectateRoom}
+                  disabled={loading || !inputCode.trim()}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Eye size={18} />
+                {t('spectate')}
+                </button>
             </div>
           </div>
 

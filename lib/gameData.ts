@@ -106,14 +106,14 @@ export const heroes: Hero[] = [
 ];
 
 export const phases: Phase[] = [
-  { step: 1, side: "left", action: "ban", count: 2, desc: "แบน 2" },
-  { step: 2, side: "right", action: "ban", count: 2, desc: "แบน 2" },
-  { step: 3, side: "left", action: "pick", count: 1, desc: "เลือก 1" },
-  { step: 4, side: "right", action: "pick", count: 2, desc: "เลือก 2" },
-  { step: 5, side: "left", action: "pick", count: 1, desc: "เลือก 1" },
-  { step: 6, side: "left", action: "ban", count: 2, desc: "แบน 2" },
-  { step: 7, side: "right", action: "ban", count: 2, desc: "แบน 2" },
-  { step: 8, side: "right", action: "pick", count: 1, desc: "เลือก 1" },
-  { step: 9, side: "left", action: "pick", count: 2, desc: "เลือก 2" },
-  { step: 10, side: "right", action: "pick", count: 1, desc: "เลือก 1" },
+  { step: 1, side: "left", action: "ban", count: 2, desc: "ban_2" },
+  { step: 2, side: "right", action: "ban", count: 2, desc: "ban_2" },
+  { step: 3, side: "left", action: "pick", count: 1, desc: "pick_1" },
+  { step: 4, side: "right", action: "pick", count: 2, desc: "pick_2" },
+  { step: 5, side: "left", action: "pick", count: 1, desc: "pick_1" },
+  { step: 6, side: "left", action: "ban", count: 2, desc: "ban_2" },
+  { step: 7, side: "right", action: "ban", count: 2, desc: "ban_2" },
+  { step: 8, side: "right", action: "pick", count: 1, desc: "pick_1" },
+  { step: 9, side: "left", action: "pick", count: 2, desc: "pick_2" },
+  { step: 10, side: "right", action: "pick", count: 1, desc: "pick_1" },
 ];

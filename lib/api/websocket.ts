@@ -58,8 +58,8 @@ class WebSocketClient {
     // 2. Browser environment
     if (typeof window !== "undefined") {
       const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-      const host = window.location.host; // ใช้ host (รวม port เวลา dev)
-      this.url = `${protocol}://${host}/ws`; // ← ต้องใส่ /ws ที่นี่
+      const host = window.location.host; // use host (includes port during dev)
+      this.url = `${protocol}://${host}/ws`; // ensure path contains /ws
       return;
     }
 

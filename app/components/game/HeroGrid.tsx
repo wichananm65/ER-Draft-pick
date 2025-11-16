@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from '@/lib/i18n';
 import type { Hero } from '@/lib/gameData';
 import type { HeroStatus } from '@/app/types';
 
@@ -13,6 +14,7 @@ interface HeroGridProps {
 
 export default function HeroGrid({ heroes, getHeroStatus, onHeroClick, isClickable }: HeroGridProps) {
   const [search, setSearch] = useState('');
+  const { t } = useTranslation();
 
   const filteredHeroes = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -22,12 +24,12 @@ export default function HeroGrid({ heroes, getHeroStatus, onHeroClick, isClickab
 
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-col h-full overflow-hidden">
-      <h3 className="text-xl font-bold text-white mb-4 text-center shrink-0">ตัวละคร</h3>
+      <h3 className="text-xl font-bold text-white mb-4 text-center shrink-0">{t('characters_label')}</h3>
 
       <div className="mb-3 shrink-0">
         <input
           type="text"
-          placeholder="ค้นหาตัวละคร"
+          placeholder={t('search_placeholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"

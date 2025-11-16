@@ -10,6 +10,7 @@ import PhaseInfo from './PhaseInfo';
 import TeamPanel from './TeamPanel';
 import HeroGrid from './HeroGrid';
 import RecentActionBanner from './RecentActionBanner';
+import { useTranslation } from '@/lib/i18n';
 
 interface GameRoomProps {
   roomCode: string;
@@ -18,6 +19,8 @@ interface GameRoomProps {
 }
 
 export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRoomProps) {
+  const { t } = useTranslation();
+
   // Game state
   const [currentPhase, setCurrentPhase] = useState(0);
   const [actionCount, setActionCount] = useState(0);
@@ -727,7 +730,7 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
           onClick={() => setShowHistory(true)}
           className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full shadow-lg"
         >
-          ประวัติเกม
+          {t('history_button')}
         </button>
       </div>
 
@@ -740,7 +743,7 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
           />
           <div className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-[92vw] max-w-4xl max-h-[82vh] overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
-              <div className="text-white font-semibold">ประวัติเกมที่บันทึกไว้</div>
+              <div className="text-white font-semibold">{t('saved_games')}</div>
               <button
                 onClick={() => setShowHistory(false)}
                 className="text-gray-300 hover:text-white"
@@ -751,7 +754,7 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
             </div>
             <div className="p-4 overflow-auto max-h-[72vh]">
               {savedRounds.length === 0 ? (
-                <div className="text-gray-400 text-sm">ยังไม่มีการบันทึก</div>
+                <div className="text-gray-400 text-sm">{t('no_saved')}</div>
               ) : (
                 <div className="flex flex-col gap-3">
                   {savedRounds.map((r, idx) => {
@@ -772,7 +775,7 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
                       <div key={idx} className="bg-gray-800/70 border border-gray-700 rounded-lg p-3">
                         <div className="flex items-center justify-between">
                           <div className="text-sm text-gray-300 font-semibold">
-                            เกมที่ {rr.game} — {rr.leftName} vs {rr.rightName}
+                            {t('game_round', { num: rr.game, left: rr.leftName, right: rr.rightName })}
                           </div>
                           {rr.timestamp ? (
                             <div className="text-xs text-gray-500">
@@ -782,25 +785,25 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
                           <div className="bg-gray-900/50 rounded p-2">
-                            <div className="text-xs text-gray-400">แบน (🔵)</div>
+                            <div className="text-xs text-gray-400">{`${t('ban')} (🔵)`}</div>
                             <div className="text-sm text-gray-200 wrap-break-word">
                               {leftBansNames.length ? leftBansNames.join(', ') : '-'}
                             </div>
                           </div>
                           <div className="bg-gray-900/50 rounded p-2">
-                            <div className="text-xs text-gray-400">แบน (🔴)</div>
+                            <div className="text-xs text-gray-400">{`${t('ban')} (🔴)`}</div>
                             <div className="text-sm text-gray-200 wrap-break-word">
                               {rightBansNames.length ? rightBansNames.join(', ') : '-'}
                             </div>
                           </div>
                           <div className="bg-gray-900/50 rounded p-2">
-                            <div className="text-xs text-gray-400">เลือก (🔵)</div>
+                            <div className="text-xs text-gray-400">{`${t('pick')} (🔵)`}</div>
                             <div className="text-sm text-gray-200 wrap-break-word">
                               {leftPicksNames.length ? leftPicksNames.join(', ') : '-'}
                             </div>
                           </div>
                           <div className="bg-gray-900/50 rounded p-2">
-                            <div className="text-xs text-gray-400">เลือก (🔴)</div>
+                            <div className="text-xs text-gray-400">{`${t('pick')} (🔴)`}</div>
                             <div className="text-sm text-gray-200 wrap-break-word">
                               {rightPicksNames.length ? rightPicksNames.join(', ') : '-'}
                             </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { heroes } from '@/lib/gameData';
+import { useTranslation } from '@/lib/i18n';
 
 interface TeamPanelProps {
   side: 'left' | 'right';
@@ -15,11 +16,12 @@ interface TeamPanelProps {
 }
 
 export default function TeamPanel({ side, bans, picks, name, isEditable = false, onNameChange, isVisuallyLeft }: TeamPanelProps) {
+  const { t } = useTranslation();
   // Determine visual side: if `isVisuallyLeft` is provided use it, otherwise derive from logical `side`.
   const isLeft = typeof isVisuallyLeft === 'boolean' ? isVisuallyLeft : side === 'left';
   const borderColor = isLeft ? 'border-blue-600' : 'border-red-600';
   const teamColor = isLeft ? 'text-blue-400' : 'text-red-400';
-  const defaultName = isLeft ? '🔵 ทีม (Blue)' : '🔴 ทีม (Red)';
+  const defaultName = isLeft ? t('team_blue') : t('team_red');
   const teamName = name ? `${isLeft ? '🔵' : '🔴'} ${name}` : defaultName;
   // Add color transition helper class so color/border changes animate when swap occurs
 
@@ -28,17 +30,17 @@ export default function TeamPanel({ side, bans, picks, name, isEditable = false,
       <div className="flex items-center justify-between mb-4">
         <h3 className={`text-xl font-bold ${teamColor}`}>{teamName}</h3>
         {isEditable ? (
-          <input
+            <input
             value={name ?? ''}
             onChange={(e) => onNameChange?.(e.target.value)}
-            placeholder="กรอกชื่อทีม"
+            placeholder={t('team_placeholder')}
             className="ml-2 bg-gray-700/50 border border-gray-600 text-sm text-white rounded px-2 py-1"
           />
         ) : null}
       </div>
 
       <div className="mb-4">
-        <h4 className="text-sm font-semibold text-gray-400 mb-2">แบน ({bans.length}):</h4>
+        <h4 className="text-sm font-semibold text-gray-400 mb-2">{t('ban')} ({bans.length}):</h4>
         <div className="flex flex-wrap gap-2 min-h-8">
           {bans.map((id) => {
             const hero = heroes.find(h => h.id === id);
@@ -52,7 +54,7 @@ export default function TeamPanel({ side, bans, picks, name, isEditable = false,
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold text-gray-400 mb-2">เลือก ({picks.length}):</h4>
+        <h4 className="text-sm font-semibold text-gray-400 mb-2">{t('pick')} ({picks.length}):</h4>
         <div className="flex flex-wrap gap-2 min-h-8">
           {picks.map((id) => {
             const hero = heroes.find(h => h.id === id);
