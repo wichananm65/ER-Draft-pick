@@ -5,7 +5,8 @@
   --foreground: #171717;
 }
 
-@theme inline {
+/* Normalize theme variables (removed unknown @theme rule for build compatibility) */
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -27,7 +28,7 @@ body {
 
 /* Swap transition styles for team panels */
 .swap-container {
-  /* container for swap animation */
+  position: relative;
 }
 .team-slot {
   will-change: transform, opacity;

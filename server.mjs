@@ -38,18 +38,6 @@ function createRoomInDb(code, ownerSide, state = {}) {
   db.write();
 }
 
-function getRoomFromDb(code) {
-  db.read();
-  if (!db.data) db.data = { rooms: [] };
-  const row = db.data.rooms.find((r) => r.code === code);
-  if (!row) return null;
-  return {
-    code: row.code,
-    ownerSide: row.ownerSide,
-    state: row.state || {},
-    createdAt: row.createdAt,
-  };
-}
 
 function updateRoomStateInDb(code, state = {}) {
   db.read();
