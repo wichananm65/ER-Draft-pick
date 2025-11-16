@@ -24,6 +24,9 @@ if (!db.data) db.data = { rooms: [] };
 
 const roomClients = new Map(); // roomCode -> Set(ws)
 
+// How long to keep an empty room in memory before deleting (ms)
+const ROOM_EMPTY_TTL = 5 * 60 * 1000; // 5 minutes
+
 function createRoomInDb(code, ownerSide, state = {}) {
   db.read();
   if (!db.data) db.data = { rooms: [] };
@@ -193,10 +196,16 @@ function cleanupConnection(ws) {
               !room.rightPlayer &&
               room.spectators.size === 0
             ) {
-              // remove from memory, keep DB until owner explicitly leaves
+              // remove from memory and DB after TTL if still empty
+              try {
+                deleteRoomFromDb(roomCode);
+              } catch {
+                // ignore DB deletion errors
+              }
               rooms.delete(roomCode);
+              console.log(`Deleted empty room ${roomCode} after ${ROOM_EMPTY_TTL}ms`);
             }
-          }, 300000); // 5 minutes
+          }, ROOM_EMPTY_TTL);
         }
       }
       break;
