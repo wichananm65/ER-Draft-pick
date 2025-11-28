@@ -67,7 +67,6 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
     saveCurrentState,
   } = useGameState({
     roomCode,
-    heroes,
     playSoundForEvent,
     onGameStart: () => playSoundForEvent('start'),
     onPhaseChange: (prev, newPhase) => {
