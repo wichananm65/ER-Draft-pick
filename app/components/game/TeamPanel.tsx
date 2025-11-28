@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { heroes } from '@/lib/gameData';
+import type { Hero } from '@/lib/gameData';
 import { useTranslation } from '@/lib/i18n';
 
 interface TeamPanelProps {
@@ -13,9 +13,10 @@ interface TeamPanelProps {
   onNameChange?: (name: string) => void;
   // If true, visual rendering should flip colors/icons (used when global swapSides is active)
   isVisuallyLeft?: boolean;
+  heroes: Hero[];
 }
 
-export default function TeamPanel({ side, bans, picks, name, isEditable = false, onNameChange, isVisuallyLeft }: TeamPanelProps) {
+export default function TeamPanel({ side, bans, picks, name, isEditable = false, onNameChange, isVisuallyLeft, heroes }: TeamPanelProps) {
   const { t } = useTranslation();
   // Determine visual side: if `isVisuallyLeft` is provided use it, otherwise derive from logical `side`.
   const isLeft = typeof isVisuallyLeft === 'boolean' ? isVisuallyLeft : side === 'left';

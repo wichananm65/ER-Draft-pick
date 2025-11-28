@@ -1,7 +1,7 @@
  'use client';
 
 import React from 'react';
-import { heroes } from '@/lib/gameData';
+import type { Hero } from '@/lib/gameData';
 import type { Side } from '@/app/types';
 import { useTranslation } from '@/lib/i18n';
 
@@ -14,9 +14,10 @@ interface LastAction {
 
 interface Props {
   lastAction: LastAction | null;
+  heroes: Hero[];
 }
 
-export default function RecentActionBanner({ lastAction }: Props) {
+export default function RecentActionBanner({ lastAction, heroes }: Props) {
   const { t } = useTranslation();
   if (!lastAction) {
     return (

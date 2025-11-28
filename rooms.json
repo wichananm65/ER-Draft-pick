@@ -1703,6 +1703,116 @@
         "swapSides": false
       },
       "createdAt": 1763277421193
+    },
+    {
+      "code": "4AHZHR",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 9,
+        "actionCount": 0,
+        "leftBans": [
+          52,
+          17,
+          25,
+          42
+        ],
+        "rightBans": [
+          67,
+          24,
+          2,
+          26
+        ],
+        "leftPicks": [
+          27,
+          68,
+          84
+        ],
+        "rightPicks": [
+          46,
+          66,
+          39,
+          23
+        ],
+        "leftName": "A",
+        "rightName": "B",
+        "savedRounds": [
+          {
+            "game": 1,
+            "leftName": "A",
+            "rightName": "B",
+            "leftBans": [
+              52,
+              17,
+              25,
+              42
+            ],
+            "rightBans": [
+              67,
+              24,
+              2,
+              26
+            ],
+            "leftPicks": [
+              27,
+              68,
+              84
+            ],
+            "rightPicks": [
+              46,
+              66,
+              39,
+              23
+            ],
+            "timestamp": 1764340005403
+          },
+          {
+            "game": 2,
+            "leftName": "A",
+            "rightName": "B",
+            "leftBans": [
+              52,
+              17,
+              25,
+              42
+            ],
+            "rightBans": [
+              67,
+              24,
+              2,
+              26
+            ],
+            "leftPicks": [
+              27,
+              68,
+              84
+            ],
+            "rightPicks": [
+              46,
+              66,
+              39,
+              23
+            ],
+            "timestamp": 1764340008026
+          }
+        ],
+        "swapSides": true
+      },
+      "createdAt": 1764339912942
+    },
+    {
+      "code": "IQR6PI",
+      "ownerSide": "left",
+      "state": {
+        "currentPhase": 0,
+        "actionCount": 0,
+        "leftBans": [],
+        "rightBans": [],
+        "leftPicks": [],
+        "rightPicks": [],
+        "savedRounds": [],
+        "swapSides": false
+      },
+      "createdAt": 1764339914767
     }
   ]
 }
