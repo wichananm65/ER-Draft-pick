@@ -5,6 +5,17 @@
 export type Mode = 'menu' | 'game';
 export type Side = 'left' | 'right' | 'spectator' | null;
 
+export interface SavedRound {
+  game: number;
+  leftName: string;
+  rightName: string;
+  leftBans: number[];
+  rightBans: number[];
+  leftPicks: number[];
+  rightPicks: number[];
+  timestamp: number;
+}
+
 export interface GameState {
   currentPhase: number;
   actionCount: number;
@@ -14,7 +25,7 @@ export interface GameState {
   rightPicks: number[];
   leftName?: string;
   rightName?: string;
-  savedRounds?: Array<Record<string, unknown>>;
+  savedRounds?: SavedRound[];
   swapSides?: boolean;
 }
 

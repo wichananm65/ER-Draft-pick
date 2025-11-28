@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { loadGameState, saveGameState, checkRoomCapacity } from '@/lib/api/storage';
 import { wsClient } from '@/lib/api/websocket';
-import type { GameState, HeroStatus } from '@/app/types';
+import type { GameState, HeroStatus, SavedRound } from '@/app/types';
 
 interface UseGameStateProps {
   roomCode: string;
@@ -25,7 +25,7 @@ export function useGameState({
   const [rightPicks, setRightPicks] = useState<number[]>([]);
   const [leftName, setLeftName] = useState<string | undefined>(undefined);
   const [rightName, setRightName] = useState<string | undefined>(undefined);
-  const [savedRounds, setSavedRounds] = useState<Array<Record<string, unknown>>>([]);
+  const [savedRounds, setSavedRounds] = useState<SavedRound[]>([]);
   const [swapSides, setSwapSides] = useState(false);
   const [animatingSwap, setAnimatingSwap] = useState(false);
 
