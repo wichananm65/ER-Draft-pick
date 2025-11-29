@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Normalize theme variables (removed unknown @theme rule for build compatibility) */
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Global button cursor pointer */
+button {
+  cursor: pointer;
+}
+
+/* Swap transition styles for team panels */
+.swap-container {
+  position: relative;
+}
+.team-slot {
+  will-change: transform, opacity;
+}
+
+/* Circular shrink-then-expand animation to hide content swap mid-transition */
+.swap-anim .team-slot {
+  animation: swap-circle 600ms cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes swap-circle {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    border-radius: 8px;
+  }
+  45% {
+    transform: scale(0.18) translateY(-6%);
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+  55% {
+    transform: scale(0.18) translateY(-6%);
+    opacity: 0.6;
+    border-radius: 50%;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    border-radius: 8px;
+  }
+}
+
+.team-panel-color-transition {
+  transition: color 400ms ease, background-color 400ms ease, border-color 400ms ease;
+}
+
+/* Lightning border animation for active phase */
+.phase-pill {
+  position: relative;
+  z-index: 0;
+}
+
+.phase-pill::before {
+  content: '';
+  position: absolute;
+  left: -50%;
+  top: -6px;
+  width: 200%;
+  height: 6px;
+  transform: skewX(-18deg);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.phase-active-left .phase-pill::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.0) 20%, rgba(59,130,246,0.9) 50%, rgba(99,102,241,0.6) 70%, transparent 100%);
+  animation: lightning-move 1.2s linear infinite;
+  opacity: 1;
+  filter: drop-shadow(0 6px 12px rgba(59,130,246,0.18));
+}
+
+.phase-active-right .phase-pill::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.0) 20%, rgba(239,68,68,0.95) 50%, rgba(244,63,94,0.6) 70%, transparent 100%);
+  animation: lightning-move 1.2s linear infinite;
+  opacity: 1;
+  filter: drop-shadow(0 6px 12px rgba(239,68,68,0.18));
+}
+
+@keyframes lightning-move {
+  0% { transform: translateX(-100%) skewX(-18deg); }
+  100% { transform: translateX(100%) skewX(-18deg); }
+}
+
+/* One-time pulse animation for phase changes */
+.animate-pulse-once {
+  animation: pulse-once 0.9s ease-out;
+}
+
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
