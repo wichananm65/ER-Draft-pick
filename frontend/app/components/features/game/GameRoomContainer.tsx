@@ -220,7 +220,7 @@ export default function GameRoomContainer({ roomCode, userSide, onExit }: GameRo
   return (
     <div className="h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col p-4 overflow-hidden">
       <div className="max-w-7xl mx-auto w-full flex flex-col h-full overflow-hidden">
-        <Header roomCode={roomCode} userSide={userSide} onExit={onExit} />
+        <Header roomCode={roomCode} userSide={userSide} swapSides={swapSides} onExit={onExit} />
 
         <div className="shrink-0">
           <PhaseInfo

@@ -8,12 +8,17 @@ import { useTranslation } from '@/lib/i18n';
 interface HeaderProps {
   roomCode: string;
   userSide: Side;
+  swapSides?: boolean;
   onExit: () => void;
 }
 
-export default function Header({ roomCode, userSide, onExit }: HeaderProps) {
+export default function Header({ roomCode, userSide, swapSides = false, onExit }: HeaderProps) {
   const [copied, setCopied] = React.useState(false);
   const { t } = useTranslation();
+  
+  // Calculate the display side based on swap status
+  const displaySide: Side = userSide === 'spectator' ? 'spectator' :
+    swapSides ? (userSide === 'left' ? 'right' : 'left') : userSide;
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(roomCode);
@@ -43,8 +48,8 @@ export default function Header({ roomCode, userSide, onExit }: HeaderProps) {
           </span>
         )}
         {userSide !== 'spectator' && (
-          <span className={`${userSide === 'left' ? 'bg-blue-600' : 'bg-red-600'} text-white px-4 py-2 rounded-full text-sm font-semibold`}>
-            {userSide === 'left' ? t('left_team_label') : t('right_team_label')}
+          <span className={`${displaySide === 'left' ? 'bg-blue-600' : 'bg-red-600'} text-white px-4 py-2 rounded-full text-sm font-semibold`}>
+            {displaySide === 'left' ? t('left_team_label') : t('right_team_label')}
           </span>
         )}
         <button
