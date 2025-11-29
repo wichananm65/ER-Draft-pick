@@ -28,8 +28,8 @@ services:
     env: node
     region: oregon # Should match backend region for lower latency
     plan: free
-    buildCommand: cd frontend && npm install && npm run build
-    startCommand: cd frontend && npm start
+    buildCommand: cd frontend && pnpm install --no-frozen-lockfile && pnpm build
+    startCommand: cd frontend && pnpm start
     envVars:
       - key: NODE_ENV
         value: production
